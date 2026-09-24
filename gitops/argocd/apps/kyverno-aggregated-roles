@@ -12,9 +12,7 @@ spec:
     targetRevision: main
     path: infra/kyverno
     directory:
-      include: 'kyverno-aggregated-roles.yaml'
+      include: 'kyverno-cluster-role.yaml'
   destination:
     server: https://kubernetes.default.svc
-  syncPolicy:
-    syncOptions:
-      - CreateNamespace=true
+    namespace: kyverno # ignored because the resource is cluster-scoped 

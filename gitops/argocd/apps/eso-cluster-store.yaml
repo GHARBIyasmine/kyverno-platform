@@ -10,7 +10,15 @@ spec:
   source:
     repoURL: https://github.com/GHARBIyasmine/kyverno-platform.git
     targetRevision: main
-    path: infra/cluster-secret-store
+    path: infra/external-secrets
+    directory:
+      include: 'fake-vault-store.yaml'
   destination:
     server: https://kubernetes.default.svc
     namespace: secret-backend
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
