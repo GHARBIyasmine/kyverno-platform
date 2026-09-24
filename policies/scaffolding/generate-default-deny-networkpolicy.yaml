@@ -1,0 +1,46 @@
+apiVersion: policies.kyverno.io/v1
+kind: GeneratingPolicy
+metadata:
+  name: generate-default-deny-networkpolicy
+spec:
+  evaluation:
+  # kyverno will create it right back following manuel deletion 
+    synchronize:
+      enabled: true
+  # kyverno will generate this for existing namespaces as well
+    generateExisting:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["namespaces"]
+
+  # The infra-namespace exclusion below is what makes it safe
+  # to apply. Otherwise, this would sever CoreDNS/ArgoCD/Kyverno/ESO
+  # pod networking the moment it's created.
+  matchConditions:
+    - name: exclude-infra-namespaces
+      expression: >
+        !(object.metadata.name in [
+          "kube-system", "kube-public", "kube-node-lease", "default",
+          "kyverno", "argocd", "external-secrets", "secret-backend"
+        ])
+  variables:
+    - name: nsName
+      expression: "object.metadata.name"
+  generate:
+    - template:
+        interpolate: cel
+        value: |
+          apiVersion: networking.k8s.io/v1
+          kind: NetworkPolicy
+          metadata:
+            name: default-deny-all
+            namespace: (( variables.nsName ))
+          spec:
+            podSelector: {}
+            policyTypes:
+              - Ingress
+              - Egress

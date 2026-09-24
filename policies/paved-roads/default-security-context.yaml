@@ -1,0 +1,48 @@
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
+metadata:
+  name: default-security-context
+spec:
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["pods"]
+  mutations:
+    # Container-level defaults: only applied when a container has no
+    # securityContext at all, so anything a user did set is left alone. 
+    # Any violations resulting from the value set by the user 
+    # will be caught later by the validation policy 
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >
+          Object{
+            spec: Object.spec{
+              containers: object.spec.containers.map(c,
+                has(c.securityContext)
+                  ? Object.spec.containers{ name: c.name }
+                  : Object.spec.containers{
+                      name: c.name,
+                      securityContext: Object.spec.containers.securityContext{
+                        allowPrivilegeEscalation: false,
+                        readOnlyRootFilesystem: true
+                      }
+                    }
+              )
+            }
+          }
+    # Pod-level default: only applied when the pod has no securityContext at all
+    # As mentioned above, any violations will be flagged by the validating policy
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >
+          has(object.spec.securityContext)
+            ? Object{}
+            : Object{
+                spec: Object.spec{
+                  securityContext: Object.spec.securityContext{
+                    runAsNonRoot: true
+                  }
+                }
+              }

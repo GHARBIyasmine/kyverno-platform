@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cluster-secret-store
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/GHARBIyasmine/kyverno-platform.git
+    targetRevision: main
+    path: infra/cluster-secret-store
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: secret-backend

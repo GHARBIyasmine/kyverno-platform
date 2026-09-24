@@ -1,0 +1,44 @@
+apiVersion: policies.kyverno.io/v1
+kind: GeneratingPolicy
+metadata:
+  name: generate-limit-range
+spec:
+  evaluation:
+    synchronize:
+      enabled: true
+    generateExisting:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["namespaces"]
+  matchConditions:
+    - name: exclude-infra-namespaces
+      expression: >
+        !(object.metadata.name in [
+          "kube-system", "kube-public", "kube-node-lease", "default",
+          "kyverno", "argocd", "external-secrets", "secret-backend"
+        ])
+  variables:
+    - name: nsName
+      expression: "object.metadata.name"
+  generate:
+    - template:
+        interpolate: cel
+        value: |
+          apiVersion: v1
+          kind: LimitRange
+          metadata:
+            name: default-limit-range
+            namespace: (( variables.nsName ))
+          spec:
+            limits:
+              - type: Container
+                default:
+                  cpu: 500m
+                  memory: 256Mi
+                defaultRequest:
+                  cpu: 100m
+                  memory: 128Mi

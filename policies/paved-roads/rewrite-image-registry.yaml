@@ -1,0 +1,29 @@
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
+metadata:
+  name: rewrite-image-registry
+spec:
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["pods"]
+  mutations:
+    # Rewrites any image that isn't already pointing at the internal
+    # mirror (or in our case ghcr.io/gharbiyasmine, for the signed demo
+    # image) to be prefixed with the internal mirror. 
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >
+          Object{
+            spec: Object.spec{
+              containers: object.spec.containers.map(c, c.image.startsWith('ghcr.io/gharbiyasmine/'))
+                  ? Object.spec.containers{ name: c.name }
+                  : Object.spec.containers{
+                      name: c.name,
+                      image: 'ghcr.io/gharbiyasmine/' + c.image
+                    }
+              )
+            }
+          }

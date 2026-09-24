@@ -1,0 +1,41 @@
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
+metadata:
+  name: default-resource-limits
+spec:
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["pods"]
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        # Scoping note for this project: this defaults the whole requests/limits block only
+        # when a container has no `resources` block at all. It does not
+        # fill in individual missing fields (e.g. cpu present, memory
+        # missing). As that will blow up the scope a lot, we left that out as 
+        # a follow-up for finer-grained defaulting.
+        expression: >
+          Object{
+            spec: Object.spec{
+              containers: object.spec.containers.map(c,
+                has(c.resources) && (has(c.resources.requests) || has(c.resources.limits))
+                  ? Object.spec.containers{ name: c.name }
+                  : Object.spec.containers{
+                      name: c.name,
+                      resources: Object.spec.containers.resources{
+                        requests: Object.spec.containers.resources.requests{
+                          cpu: "100m",
+                          memory: "128Mi"
+                        },
+                        limits: Object.spec.containers.resources.limits{
+                          cpu: "500m",
+                          memory: "256Mi"
+                        }
+                      }
+                    }
+              )
+            }
+          }

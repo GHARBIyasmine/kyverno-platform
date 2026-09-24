@@ -1,0 +1,44 @@
+apiVersion: policies.kyverno.io/v1
+kind: ImageValidatingPolicy
+metadata:
+  name: verify-signed-images
+spec:
+  webhookConfiguration:
+    timeoutSeconds: 30
+  evaluation:
+    background:
+      enabled: false
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["pods"]
+  matchImageReferences:
+    - glob: "ghcr.io/gharbiyasmine/*"
+  attestors:
+    - name: cosignKey
+      cosign:
+        key:
+          # the contents of cosign.pub here 
+          data: |
+            -----BEGIN PUBLIC KEY-----
+            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEoF4LIFK4VXPdleNipefMIOvrNbv3
+            L++B6c0mzgJt7fB+eB6CEgyrTm5SUIjU2Ux6REDgLA5L+djwUN9Shes8XA==
+            -----END PUBLIC KEY-----
+  attestations:
+    - name: sbom
+      intoto:
+        # Must match the --type value passed to `cosign attest`.
+        type: https://cyclonedx.org/bom
+  validations:
+    - expression: >
+        images.containers.map(image,
+          verifyImageSignatures(image, [attestors.cosignKey])
+        ).all(e, e > 0)
+      message: "Image signature verification failed." 
+    - expression: >
+        images.containers.map(image,
+          verifyAttestationSignatures(image, attestations.sbom, [attestors.cosignKey])
+        ).all(e, e > 0)
+      message: "Signed SBOM attestation is missing or failed verification."
