@@ -12,5 +12,6 @@ results:
     kind: Namespace
     resources:
       - team-checkout
-    generatedResources: generated-team-checkout.yaml
+    generatedResources: 
+      - generated-team-checkout.yaml
     result: pass
