@@ -164,4 +164,7 @@ jobs:
 
       - name: Dump Kyverno logs on failure
         if: failure()
-        run: kubectl logs -n kyverno -l app.kubernetes.io/component=background-controller --tail=200 || true
+        run: |
+          kubectl logs -n kyverno -l app.kubernetes.io/component=admission-controller --tail=200 || true
+          kubectl logs -n kyverno -l app.kubernetes.io/component=background-controller --tail=200 || true
+          kubectl get mutatingwebhookconfigurations -o yaml || true
