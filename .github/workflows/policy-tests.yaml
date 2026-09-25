@@ -160,7 +160,7 @@ jobs:
           # fails silently instead of failing the job.
 
       - name: Run chainsaw e2e tests
-        run: chainsaw test --test-dir tests/e2e/
+        run: chainsaw test --config tests/e2e/.chainsaw.yaml --test-dir tests/e2e/
 
       - name: Dump Kyverno logs on failure
         if: failure()
