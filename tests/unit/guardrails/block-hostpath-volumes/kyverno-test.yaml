@@ -1,0 +1,21 @@
+name: block-hostpath-volumes-test
+policies:
+  - policy.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: block-hostpath-volumes
+    rule: block-hostpath-volumes
+    resource: good-pod-no-volumes
+    kind: Pod
+    result: pass
+  - policy: block-hostpath-volumes
+    rule: block-hostpath-volumes
+    resource: good-pod-emptydir
+    kind: Pod
+    result: pass
+  - policy: block-hostpath-volumes
+    rule: block-hostpath-volumes
+    resource: bad-pod-hostpath
+    kind: Pod
+    result: fail

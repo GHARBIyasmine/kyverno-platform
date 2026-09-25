@@ -1,0 +1,24 @@
+name: default-resource-limits-test
+policies:
+  - policy.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: default-resource-limits
+    rule: default-resource-limits
+    resource: no-resources-pod
+    kind: Pod
+    patchedResource: patched-no-resources-pod.yaml
+    result: pass
+  - policy: default-resource-limits
+    rule: default-resource-limits
+    resource: already-has-resources-pod
+    kind: Pod
+    patchedResource: patched-already-has-resources-pod.yaml
+    result: pass
+  - policy: default-resource-limits
+    rule: default-resource-limits
+    resource: partial-resources-pod
+    kind: Pod
+    patchedResource: patched-partial-resources-pod.yaml
+    result: pass

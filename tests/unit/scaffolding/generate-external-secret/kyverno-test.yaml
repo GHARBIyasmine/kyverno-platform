@@ -1,0 +1,12 @@
+name: generate-external-secret-test
+policies:
+  - policy.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: generate-external-secret
+    rule: generate-external-secret
+    resource: team-checkout
+    kind: Namespace
+    generatedResource: generated-team-checkout.yaml
+    result: pass

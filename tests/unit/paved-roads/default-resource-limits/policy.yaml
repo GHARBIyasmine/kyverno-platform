@@ -1,0 +1,36 @@
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
+metadata:
+  name: default-resource-limits
+spec:
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["pods"]
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >
+          Object{
+            spec: Object.spec{
+              containers: object.spec.containers.map(c,
+                has(c.resources) && (has(c.resources.requests) || has(c.resources.limits))
+                  ? Object.spec.containers{ name: c.name }
+                  : Object.spec.containers{
+                      name: c.name,
+                      resources: Object.spec.containers.resources{
+                        requests: Object.spec.containers.resources.requests{
+                          cpu: "100m",
+                          memory: "128Mi"
+                        },
+                        limits: Object.spec.containers.resources.limits{
+                          cpu: "500m",
+                          memory: "256Mi"
+                        }
+                      }
+                    }
+              )
+            }
+          }

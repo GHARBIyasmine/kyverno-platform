@@ -1,0 +1,24 @@
+name: rewrite-image-registry-test
+policies:
+  - policy.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: rewrite-image-registry
+    rule: rewrite-image-registry
+    resource: already-internal-pod
+    kind: Pod
+    patchedResource: patched-already-internal-pod.yaml
+    result: pass
+  - policy: rewrite-image-registry
+    rule: rewrite-image-registry
+    resource: external-image-pod
+    kind: Pod
+    patchedResource: patched-external-image-pod.yaml
+    result: pass
+  - policy: rewrite-image-registry
+    rule: rewrite-image-registry
+    resource: multi-container-mixed-pod
+    kind: Pod
+    patchedResource: patched-multi-container-mixed-pod.yaml
+    result: pass

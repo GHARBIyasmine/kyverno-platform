@@ -1,0 +1,16 @@
+name: block-hostnetwork-test
+policies:
+  - policy.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: block-hostnetwork
+    rule: block-hostnetwork
+    resource: good-pod
+    kind: Pod
+    result: pass
+  - policy: block-hostnetwork
+    rule: block-hostnetwork
+    resource: bad-pod-hostnetwork
+    kind: Pod
+    result: fail

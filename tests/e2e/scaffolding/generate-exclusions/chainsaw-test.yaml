@@ -1,0 +1,34 @@
+apiVersion: chainsaw.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: generate-exclusions
+spec:
+  steps:
+    - name: creating a normal namespace generates all four scaffolding resources
+      try:
+        - create:
+            file: new-namespace.yaml
+        - assert:
+            file: expected-resource-quota.yaml
+        - assert:
+            file: expected-limit-range.yaml
+        - assert:
+            file: expected-networkpolicy.yaml
+        - assert:
+            file: expected-externalsecret.yaml
+    - name: infra namespaces never receive generated scaffolding resources
+      try:
+        # `error` asserts the described object is NOT found in the cluster --
+        # confirms the exclusion held even with generateExisting enabled,
+        # for namespaces that already existed before these policies were
+        # installed.
+        - error:
+            file: absent-resource-quota-kyverno-ns.yaml
+        - error:
+            file: absent-networkpolicy-argocd-ns.yaml
+        - error:
+            file: absent-externalsecret-secret-backend-ns.yaml
+    - name: cleanup
+      try:
+        - delete:
+            file: new-namespace.yaml

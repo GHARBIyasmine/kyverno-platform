@@ -1,0 +1,12 @@
+name: generate-limit-range-test
+policies:
+  - policy.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: generate-limit-range
+    rule: generate-limit-range
+    resource: team-checkout
+    kind: Namespace
+    generatedResource: generated-team-checkout.yaml
+    result: pass

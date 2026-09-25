@@ -1,0 +1,21 @@
+name: require-resource-limits-test
+policies:
+  - policy.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: require-resource-limits
+    rule: require-resource-limits
+    resource: good-pod
+    kind: Pod
+    result: pass
+  - policy: require-resource-limits
+    rule: require-resource-limits
+    resource: bad-pod-no-resources
+    kind: Pod
+    result: fail
+  - policy: require-resource-limits
+    rule: require-resource-limits
+    resource: bad-pod-partial-resources
+    kind: Pod
+    result: fail

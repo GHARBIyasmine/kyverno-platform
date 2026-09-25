@@ -1,0 +1,22 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: default-external-secret
+  namespace: team-checkout
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: fake-vault
+    kind: ClusterSecretStore
+  target:
+    name: synced-db-credentials
+    creationPolicy: Owner
+  data:
+    - secretKey: username
+      remoteRef:
+        key: demo-db-credentials
+        property: username
+    - secretKey: password
+      remoteRef:
+        key: demo-db-credentials
+        property: password

@@ -1,0 +1,21 @@
+name: require-pod-securitycontext-test
+policies:
+  - policy.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: require-pod-securitycontext
+    rule: require-pod-securitycontext
+    resource: good-pod
+    kind: Pod
+    result: pass
+  - policy: require-pod-securitycontext
+    rule: require-pod-securitycontext
+    resource: bad-pod-no-securitycontext
+    kind: Pod
+    result: fail
+  - policy: require-pod-securitycontext
+    rule: require-pod-securitycontext
+    resource: bad-pod-runasnonroot-false
+    kind: Pod
+    result: fail

@@ -1,0 +1,24 @@
+name: default-security-context-test
+policies:
+  - policy.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: default-security-context
+    rule: default-security-context
+    resource: no-securitycontext-pod
+    kind: Pod
+    patchedResource: patched-no-securitycontext-pod.yaml
+    result: pass
+  - policy: default-security-context
+    rule: default-security-context
+    resource: already-has-pod-securitycontext
+    kind: Pod
+    patchedResource: patched-already-has-pod-securitycontext.yaml
+    result: pass
+  - policy: default-security-context
+    rule: default-security-context
+    resource: already-has-container-securitycontext
+    kind: Pod
+    patchedResource: patched-already-has-container-securitycontext.yaml
+    result: pass

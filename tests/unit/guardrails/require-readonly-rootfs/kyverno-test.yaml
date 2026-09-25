@@ -1,0 +1,21 @@
+name: require-readonly-rootfs-test
+policies:
+  - policy.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: require-readonly-rootfs
+    rule: require-readonly-rootfs
+    resource: good-pod
+    kind: Pod
+    result: pass
+  - policy: require-readonly-rootfs
+    rule: require-readonly-rootfs
+    resource: bad-pod-no-securitycontext
+    kind: Pod
+    result: fail
+  - policy: require-readonly-rootfs
+    rule: require-readonly-rootfs
+    resource: bad-pod-writable-rootfs
+    kind: Pod
+    result: fail

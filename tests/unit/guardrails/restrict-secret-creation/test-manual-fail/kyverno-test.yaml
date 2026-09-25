@@ -1,0 +1,12 @@
+name: restrict-secret-creation-test
+policies:
+  - ../policy.yaml
+resources:
+  - ../resources.yaml
+userinfo: ../user-info-manual.yaml
+results:
+  - policy: restrict-secret-creation
+    rule: restrict-secret-creation
+    resource: manual-secret
+    kind: Secret
+    result: fail

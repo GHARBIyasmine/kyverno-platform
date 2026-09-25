@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: good-pod
+spec:
+  containers:
+    - name: app
+      image: ghcr.io/gharbiyasmine/kyverno-demo-unsigned:1.0.0
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-pod-hostnetwork
+spec:
+  hostNetwork: true
+  containers:
+    - name: app
+      image: ghcr.io/gharbiyasmine/kyverno-demo-unsigned:1.0.0

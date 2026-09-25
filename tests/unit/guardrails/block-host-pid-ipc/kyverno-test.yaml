@@ -1,0 +1,26 @@
+name: block-host-pid-ipc-test
+policies:
+  - policy.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: block-host-pid-ipc
+    rule: block-host-pid-ipc
+    resource: good-pod
+    kind: Pod
+    result: pass
+  - policy: block-host-pid-ipc
+    rule: block-host-pid-ipc
+    resource: bad-pod-hostpid
+    kind: Pod
+    result: fail
+  - policy: block-host-pid-ipc
+    rule: block-host-pid-ipc
+    resource: bad-pod-hostipc
+    kind: Pod
+    result: fail
+  - policy: block-host-pid-ipc
+    rule: block-host-pid-ipc
+    resource: bad-pod-both
+    kind: Pod
+    result: fail

@@ -1,0 +1,12 @@
+name: restrict-secret-creation-test-eso-pass
+policies:
+  - ../policy.yaml
+resources:
+  - ../resources.yaml
+userinfo: ../user-info-eso.yaml
+results:
+  - policy: restrict-secret-creation
+    rule: restrict-secret-creation
+    resource: eso-created-secret
+    kind: Secret
+    result: pass

@@ -1,0 +1,26 @@
+name: require-namespace-labels-test
+policies:
+  - policy.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: require-namespace-labels
+    rule: require-namespace-labels
+    resource: good-namespace
+    kind: Namespace
+    result: pass
+  - policy: require-namespace-labels
+    rule: require-namespace-labels
+    resource: bad-namespace-no-labels
+    kind: Namespace
+    result: fail
+  - policy: require-namespace-labels
+    rule: require-namespace-labels
+    resource: bad-namespace-empty-label
+    kind: Namespace
+    result: fail
+  - policy: require-namespace-labels
+    rule: require-namespace-labels
+    resource: bad-namespace-missing-environment
+    kind: Namespace
+    result: fail

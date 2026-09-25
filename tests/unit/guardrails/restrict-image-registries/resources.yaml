@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: good-pod
+spec:
+  containers:
+    - name: app
+      image: ghcr.io/gharbiyasmine/kyverno-demo-unsigned:1.0.0
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-pod-dockerhub
+spec:
+  containers:
+    - name: app
+      image: docker.io/library/nginx:1.25
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-pod-init-container-wrong-registry
+spec:
+  initContainers:
+    - name: init
+      image: docker.io/library/busybox:1.36
+  containers:
+    - name: app
+      image: ghcr.io/gharbiyasmine/kyverno-demo-unsigned:1.0.0

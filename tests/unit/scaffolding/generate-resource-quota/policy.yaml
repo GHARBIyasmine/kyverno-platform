@@ -1,0 +1,41 @@
+apiVersion: policies.kyverno.io/v1
+kind: GeneratingPolicy
+metadata:
+  name: generate-resource-quota
+spec:
+  evaluation:
+    synchronize:
+      enabled: true
+    generateExisting:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["namespaces"]
+  matchConditions:
+    - name: exclude-infra-namespaces
+      expression: >
+        !(object.metadata.name in [
+          "kube-system", "kube-public", "kube-node-lease", "default",
+          "kyverno", "argocd", "external-secrets", "secret-backend"
+        ])
+  variables:
+    - name: nsName
+      expression: "object.metadata.name"
+  generate:
+    - template:
+        interpolate: cel
+        value: |
+          apiVersion: v1
+          kind: ResourceQuota
+          metadata:
+            name: default-resource-quota
+            namespace: (( variables.nsName ))
+          spec:
+            hard:
+              requests.cpu: "4"
+              requests.memory: "8Gi"
+              limits.cpu: "8"
+              limits.memory: "16Gi"

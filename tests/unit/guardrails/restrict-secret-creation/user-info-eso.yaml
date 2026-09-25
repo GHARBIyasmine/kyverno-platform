@@ -1,0 +1,9 @@
+apiVersion: cli.kyverno.io/v1alpha1
+kind: UserInfo
+metadata:
+  name: eso-created-secret
+clusterRoles: []
+subjects:
+  - kind: ServiceAccount
+    name: external-secrets
+    namespace: external-secrets

@@ -1,0 +1,12 @@
+name: generate-resource-quota-test
+policies:
+  - policy.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: generate-resource-quota
+    rule: generate-resource-quota
+    resource: team-checkout
+    kind: Namespace
+    generatedResource: generated-team-checkout.yaml
+    result: pass

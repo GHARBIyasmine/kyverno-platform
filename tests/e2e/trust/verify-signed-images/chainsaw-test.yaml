@@ -1,0 +1,25 @@
+apiVersion: chainsaw.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: verify-signed-images
+spec:
+  # This policy has evaluation.background.enabled: false and only matches
+  # CREATE, so it only fires on the live admission path -- there is no
+  # background-reconciliation path to fall back on if the webhook itself
+  # isn't ready yet, hence bumping the default timeout below.
+  timeouts:
+    apply: 30s
+  steps:
+    - name: reject unsigned image from the trusted registry
+      try:
+        - create:
+            file: bad-pod-unsigned.yaml
+            expect:
+              - check:
+                  ($error != null): true
+    - name: allow signed and attested image
+      try:
+        - create:
+            file: good-pod.yaml
+        - assert:
+            file: good-pod.yaml
