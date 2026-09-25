@@ -77,7 +77,7 @@ jobs:
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3
 
-      - name: Create kind cluster
+      - name: Create vind cluster
         uses: loft-sh/setup-vind@v1
         with:
           name: e2e-cluster
@@ -91,7 +91,7 @@ jobs:
           echo "=== System Pods ==="
           kubectl get pods -A
 
-      # Mirrors your ArgoCD sync-wave order (ESO -> ESO credentials/store ->
+      # Mirrors our ArgoCD sync-wave order (ESO -> ESO credentials/store ->
       # Kyverno -> aggregated roles -> policies) since the policies
       # themselves assume ESO and its ClusterSecretStore already exist
       # (generate-external-secret references secretStoreRef: fake-vault).
@@ -104,17 +104,20 @@ jobs:
             --set installCRDs=true \
             --wait --timeout 3m
 
+      - name: Wait for External Secrets Operator pods to be ready
+        run: |
+          kubectl wait --for=condition=Ready pod \
+            --selector=app.kubernetes.io/instance=external-secrets \
+            --namespace external-secrets \
+            --timeout=120s
+          kubectl get pods -n external-secrets
+
       - name: Apply ESO credentials and fake-vault ClusterSecretStore
         run: |
           kubectl create namespace secret-backend --dry-run=client -o yaml | kubectl apply -f -
           kubectl apply -f infra/external-secrets/eso-credentials.yaml
           kubectl apply -f infra/external-secrets/fake-vault-store.yaml
 
-      # The demo-db-credentials secret is what generate-external-secret's
-      # ExternalSecret resolves against via the fake-vault store -- without
-      # it the generated ExternalSecret exists but never reaches Ready,
-      # which won't fail this suite (nothing here asserts sync status) but
-      # would be worth adding if you tighten the e2e assertions later.
       - name: Seed fake-vault demo secret
         run: |
           kubectl create secret generic demo-db-credentials \
@@ -130,6 +133,14 @@ jobs:
           helm install kyverno kyverno/kyverno \
             --namespace kyverno --create-namespace \
             --wait --timeout 5m
+          
+      - name: Wait for Kyverno pods to be ready
+        run: |
+          kubectl wait --for=condition=Ready pod \
+            --selector=app.kubernetes.io/instance=kyverno \
+            --namespace kyverno \
+            --timeout=120s
+          kubectl get pods -n kyverno
 
       - name: Apply Kyverno aggregated ClusterRole
         run: kubectl apply -f infra/kyverno/kyverno-cluster-role.yaml
