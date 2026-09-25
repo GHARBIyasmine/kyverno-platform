@@ -1,21 +1,22 @@
-name: require-resource-limits-test
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: require-resource-limits-test
 policies:
   - policy.yaml
 resources:
   - resources.yaml
 results:
   - policy: require-resource-limits
-    rule: require-resource-limits
-    resource: good-pod
+    isValidatingPolicy: true
     kind: Pod
+    resources:
+      - good-pod
     result: pass
   - policy: require-resource-limits
-    rule: require-resource-limits
-    resource: bad-pod-no-resources
+    isValidatingPolicy: true
     kind: Pod
-    result: fail
-  - policy: require-resource-limits
-    rule: require-resource-limits
-    resource: bad-pod-partial-resources
-    kind: Pod
+    resources:
+      - bad-pod-no-resources
+      - bad-pod-partial-resources
     result: fail

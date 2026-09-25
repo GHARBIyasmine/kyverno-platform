@@ -1,12 +1,16 @@
-name: generate-resource-quota-test
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: generate-resource-quota-test
 policies:
   - policy.yaml
 resources:
   - resources.yaml
 results:
   - policy: generate-resource-quota
-    rule: generate-resource-quota
-    resource: team-checkout
+    isGeneratingPolicy: true
     kind: Namespace
-    generatedResource: generated-team-checkout.yaml
+    resources:
+      - team-checkout
+    generatedResources: generated-team-checkout.yaml
     result: pass

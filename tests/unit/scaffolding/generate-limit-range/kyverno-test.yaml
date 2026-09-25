@@ -1,12 +1,16 @@
-name: generate-limit-range-test
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: generate-limit-range-test
 policies:
   - policy.yaml
 resources:
   - resources.yaml
 results:
   - policy: generate-limit-range
-    rule: generate-limit-range
-    resource: team-checkout
+    isGeneratingPolicy: true
     kind: Namespace
-    generatedResource: generated-team-checkout.yaml
+    resources:
+      - team-checkout
+    generatedResources: generated-team-checkout.yaml
     result: pass

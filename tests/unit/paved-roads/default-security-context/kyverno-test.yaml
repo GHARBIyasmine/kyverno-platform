@@ -1,24 +1,30 @@
-name: default-security-context-test
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: default-security-context-test
 policies:
   - policy.yaml
 resources:
   - resources.yaml
 results:
   - policy: default-security-context
-    rule: default-security-context
-    resource: no-securitycontext-pod
+    isMutatingPolicy: true
     kind: Pod
-    patchedResource: patched-no-securitycontext-pod.yaml
+    resources:
+      - no-securitycontext-pod
+    patchedResources: patched-no-securitycontext-pod.yaml
     result: pass
   - policy: default-security-context
-    rule: default-security-context
-    resource: already-has-pod-securitycontext
+    isMutatingPolicy: true
     kind: Pod
-    patchedResource: patched-already-has-pod-securitycontext.yaml
+    resources:
+      - already-has-pod-securitycontext
+    patchedResources: patched-already-has-pod-securitycontext.yaml
     result: pass
   - policy: default-security-context
-    rule: default-security-context
-    resource: already-has-container-securitycontext
+    isMutatingPolicy: true
     kind: Pod
-    patchedResource: patched-already-has-container-securitycontext.yaml
+    resources:
+      - already-has-container-securitycontext
+    patchedResources: patched-already-has-container-securitycontext.yaml
     result: pass

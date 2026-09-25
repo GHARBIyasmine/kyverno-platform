@@ -1,12 +1,16 @@
-name: generate-external-secret-test
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: generate-external-secret-test
 policies:
   - policy.yaml
 resources:
   - resources.yaml
 results:
   - policy: generate-external-secret
-    rule: generate-external-secret
-    resource: team-checkout
+    isGeneratingPolicy: true
     kind: Namespace
-    generatedResource: generated-team-checkout.yaml
+    resources:
+      - team-checkout
+    generatedResources: generated-team-checkout.yaml
     result: pass

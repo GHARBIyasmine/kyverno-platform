@@ -1,24 +1,30 @@
-name: rewrite-image-registry-test
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: rewrite-image-registry-test
 policies:
   - policy.yaml
 resources:
   - resources.yaml
 results:
   - policy: rewrite-image-registry
-    rule: rewrite-image-registry
-    resource: already-internal-pod
+    isMutatingPolicy: true
     kind: Pod
-    patchedResource: patched-already-internal-pod.yaml
+    resources:
+      - already-internal-pod
+    patchedResources: patched-already-internal-pod.yaml
     result: pass
   - policy: rewrite-image-registry
-    rule: rewrite-image-registry
-    resource: external-image-pod
+    isMutatingPolicy: true
     kind: Pod
-    patchedResource: patched-external-image-pod.yaml
+    resources:
+      - external-image-pod
+    patchedResources: patched-external-image-pod.yaml
     result: pass
   - policy: rewrite-image-registry
-    rule: rewrite-image-registry
-    resource: multi-container-mixed-pod
+    isMutatingPolicy: true
     kind: Pod
-    patchedResource: patched-multi-container-mixed-pod.yaml
+    resources:
+      - multi-container-mixed-pod
+    patchedResources: patched-multi-container-mixed-pod.yaml
     result: pass

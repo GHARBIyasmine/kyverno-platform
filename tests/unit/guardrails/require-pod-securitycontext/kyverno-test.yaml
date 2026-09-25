@@ -1,21 +1,22 @@
-name: require-pod-securitycontext-test
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: require-pod-securitycontext-test
 policies:
   - policy.yaml
 resources:
   - resources.yaml
 results:
   - policy: require-pod-securitycontext
-    rule: require-pod-securitycontext
-    resource: good-pod
+    isValidatingPolicy: true
     kind: Pod
+    resources:
+      - good-pod
     result: pass
   - policy: require-pod-securitycontext
-    rule: require-pod-securitycontext
-    resource: bad-pod-no-securitycontext
+    isValidatingPolicy: true
     kind: Pod
-    result: fail
-  - policy: require-pod-securitycontext
-    rule: require-pod-securitycontext
-    resource: bad-pod-runasnonroot-false
-    kind: Pod
+    resources:
+      - bad-pod-no-securitycontext
+      - bad-pod-runasnonroot-false
     result: fail

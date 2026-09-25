@@ -1,21 +1,23 @@
-name: block-hostpath-volumes-test
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: block-hostpath-volumes-test
 policies:
   - policy.yaml
 resources:
   - resources.yaml
 results:
   - policy: block-hostpath-volumes
-    rule: block-hostpath-volumes
-    resource: good-pod-no-volumes
+    isValidatingPolicy: true
     kind: Pod
+    resources:
+      - good-pod-no-volumes
+      - good-pod-emptydir
     result: pass
   - policy: block-hostpath-volumes
-    rule: block-hostpath-volumes
-    resource: good-pod-emptydir
+    isValidatingPolicy: true
     kind: Pod
-    result: pass
-  - policy: block-hostpath-volumes
-    rule: block-hostpath-volumes
-    resource: bad-pod-hostpath
-    kind: Pod
+    resources:
+      - bad-pod-hostpath
     result: fail
+

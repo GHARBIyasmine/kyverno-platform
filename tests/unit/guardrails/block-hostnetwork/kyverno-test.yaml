@@ -1,16 +1,21 @@
-name: block-hostnetwork-test
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: block-hostnetwork-test
 policies:
   - policy.yaml
 resources:
   - resources.yaml
 results:
   - policy: block-hostnetwork
-    rule: block-hostnetwork
-    resource: good-pod
+    isValidatingPolicy: true
     kind: Pod
+    resources:
+      - good-pod
     result: pass
   - policy: block-hostnetwork
-    rule: block-hostnetwork
-    resource: bad-pod-hostnetwork
+    isValidatingPolicy: true
     kind: Pod
+    resources:
+      - bad-pod-hostnetwork
     result: fail
