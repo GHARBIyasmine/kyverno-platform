@@ -18,13 +18,13 @@ spec:
               - check:
                   ($error != null): true
     - name: allow signed and attested image
-       try:
-    - create:
-        file: good-pod.yaml
-    - assert:
-        resource:
-          apiVersion: v1
-          kind: Pod
-          metadata:
-            name: signed-good-pod
-            namespace: ($namespace)
+      try:
+        - create:
+            file: good-pod.yaml
+        - assert:
+            resource:
+              apiVersion: v1
+              kind: Pod
+              metadata:
+                name: signed-good-pod
+                namespace: ($namespace)
