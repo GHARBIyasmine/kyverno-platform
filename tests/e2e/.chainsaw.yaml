@@ -1,0 +1,21 @@
+# Save as: .chainsaw.yaml (repo root, or pass --config tests/e2e/.chainsaw.yaml
+# and adjust the workflow's `chainsaw test` step to point at it)
+#
+# Chainsaw creates its own throwaway namespace per test (e.g.
+# chainsaw-credible-gannet) unless told otherwise. Your require-namespace-labels
+# guardrail rejects any namespace without non-empty team/environment labels,
+# so every chainsaw test was failing at namespace creation, before any of the
+# actual test logic ran. This template makes every chainsaw-created namespace
+# carry those two labels so it clears that guardrail.
+apiVersion: chainsaw.kyverno.io/v1alpha1
+kind: Configuration
+metadata:
+  name: configuration
+spec:
+  namespaceTemplate:
+    metadata:
+      labels:
+        team: platform
+        environment: e2e-test
+  timeouts:
+    delete: 60s

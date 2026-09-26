@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: good-pod
+spec:
+  containers:
+    - name: app
+      image: ghcr.io/gharbiyasmine/kyverno-demo-unsigned:1.0.0
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-pod-hostpid
+spec:
+  hostPID: true
+  containers:
+    - name: app
+      image: ghcr.io/gharbiyasmine/kyverno-demo-unsigned:1.0.0
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-pod-hostipc
+spec:
+  hostIPC: true
+  containers:
+    - name: app
+      image: ghcr.io/gharbiyasmine/kyverno-demo-unsigned:1.0.0
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-pod-both
+spec:
+  hostPID: true
+  hostIPC: true
+  containers:
+    - name: app
+      image: ghcr.io/gharbiyasmine/kyverno-demo-unsigned:1.0.0

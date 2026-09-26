@@ -1,0 +1,23 @@
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  name: restrict-secret-creation
+spec:
+  evaluation:
+    background:
+      enabled: false
+  validationActions:
+    - Deny
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["secrets"]
+  validations:
+    - message: >-
+        Direct creation of Secret objects is not allowed. Provision
+        secrets via an ExternalSecret synced by the External Secrets
+        Operator instead.
+      expression: >
+        request.userInfo.username == 'system:serviceaccount:external-secrets:external-secrets'

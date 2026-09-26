@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: good-pod
+spec:
+  securityContext:
+    runAsNonRoot: true
+  containers:
+    - name: app
+      image: ghcr.io/gharbiyasmine/kyverno-demo-unsigned:1.0.0
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-pod-no-securitycontext
+spec:
+  containers:
+    - name: app
+      image: ghcr.io/gharbiyasmine/kyverno-demo-unsigned:1.0.0
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-pod-runasnonroot-false
+spec:
+  securityContext:
+    runAsNonRoot: false
+  containers:
+    - name: app
+      image: ghcr.io/gharbiyasmine/kyverno-demo-unsigned:1.0.0

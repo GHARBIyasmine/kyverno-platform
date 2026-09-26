@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: team-orders-e2e
+  labels:
+    team: team-orders
+    environment: e2e-test

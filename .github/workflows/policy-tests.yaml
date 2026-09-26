@@ -1,0 +1,170 @@
+# Two independent jobs:
+#   unit-tests  -- kyverno CLI `test`, no cluster, runs against every
+#                  tests/unit/<pillar>/<policy>/kyverno-test.yaml
+#   e2e-tests   -- spins up kind, installs ESO + Kyverno + your policies,
+#                  then runs chainsaw against tests/e2e/**
+#
+# e2e only runs if unit-tests passes (needs:), so a CEL syntax error or a
+# wrong expected-result fails fast without ever booting a cluster.
+name: policy-tests
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "policies/**"
+      - "tests/**"
+      - ".github/workflows/policy-tests.yaml"
+  push:
+    branches: [main]
+
+concurrency:
+  group: policy-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Kyverno CLI
+        uses: kyverno/action-install-cli@v0.2.0
+        with:
+          release: "v1.19.0"
+
+      - name: Check CLI version
+        run: kyverno version
+
+      - name: Run guardrails unit tests
+        run: |
+          for d in tests/unit/guardrails/*/; do
+            echo "::group::$d"
+            kyverno test "$d"
+            echo "::endgroup::"
+          done
+
+      - name: Run paved-roads unit tests
+        run: |
+          for d in tests/unit/paved-roads/*/; do
+            echo "::group::$d"
+            kyverno test "$d"
+            echo "::endgroup::"
+          done
+
+      - name: Run scaffolding unit tests
+        run: |
+          for d in tests/unit/scaffolding/*/; do
+            echo "::group::$d"
+            kyverno test "$d"
+            echo "::endgroup::"
+          done
+
+  e2e-tests:
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Install Chainsaw
+        uses: kyverno/action-install-chainsaw@v0.2.11
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Create vind cluster
+        uses: loft-sh/setup-vind@v1
+        with:
+          name: e2e-cluster
+
+      - name: Verify cluster
+        run: |
+          echo "=== Nodes ==="
+          kubectl get nodes -o wide
+          echo "=== Namespaces ==="
+          kubectl get namespaces
+          echo "=== System Pods ==="
+          kubectl get pods -A
+
+      # Mirrors our ArgoCD sync-wave order (ESO -> ESO credentials/store ->
+      # Kyverno -> aggregated roles -> policies) since the policies
+      # themselves assume ESO and its ClusterSecretStore already exist
+      # (generate-external-secret references secretStoreRef: fake-vault).
+      - name: Install External Secrets Operator
+        run: |
+          helm repo add external-secrets https://charts.external-secrets.io
+          helm repo update
+          helm install external-secrets external-secrets/external-secrets \
+            --namespace external-secrets --create-namespace \
+            --set installCRDs=true \
+            --wait --timeout 3m
+
+      - name: Wait for External Secrets Operator pods to be ready
+        run: |
+          kubectl wait --for=condition=Ready pod \
+            --selector=app.kubernetes.io/instance=external-secrets \
+            --namespace external-secrets \
+            --timeout=120s
+          kubectl get pods -n external-secrets
+
+      - name: Apply ESO credentials and fake-vault ClusterSecretStore
+        run: |
+          kubectl create namespace secret-backend --dry-run=client -o yaml | kubectl apply -f -
+          kubectl apply -f infra/external-secrets/eso-credentials.yaml
+          kubectl apply -f infra/external-secrets/fake-vault-store.yaml
+
+      - name: Seed fake-vault demo secret
+        run: |
+          kubectl create secret generic demo-db-credentials \
+            --namespace secret-backend \
+            --from-literal=username=demo \
+            --from-literal=password=demo \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Install Kyverno
+        run: |
+          helm repo add kyverno https://kyverno.github.io/kyverno/
+          helm repo update
+          helm install kyverno kyverno/kyverno \
+            --namespace kyverno --create-namespace \
+            --wait --timeout 5m
+          
+      - name: Wait for Kyverno pods to be ready
+        run: |
+          kubectl wait --for=condition=Ready pod \
+            --selector=app.kubernetes.io/instance=kyverno \
+            --namespace kyverno \
+            --timeout=120s
+          kubectl get pods -n kyverno
+
+      - name: Apply Kyverno aggregated ClusterRole
+        run: kubectl apply -f infra/kyverno/kyverno-cluster-role.yaml
+
+      - name: Apply policies
+        run: kubectl apply -f policies/ --recursive
+
+      - name: Wait for policies to be Ready
+        run: |
+          kubectl wait --for=condition=Ready validatingpolicy --all --timeout=60s || true
+          kubectl wait --for=condition=Ready mutatingpolicy --all --timeout=60s || true
+          kubectl wait --for=condition=Ready generatingpolicy --all --timeout=60s || true
+          kubectl wait --for=condition=Ready imagevalidatingpolicy --all --timeout=60s || true
+          # `|| true` on each: confirm the actual condition type/kind name
+          # kyverno reports in your version (kubectl api-resources | grep -i
+          # policy) before relying on this gate for real -- a typo here
+          # fails silently instead of failing the job.
+
+      - name: Run chainsaw e2e tests
+        run: chainsaw test --config tests/e2e/.chainsaw.yaml --test-dir tests/e2e/
+
+      - name: Dump Kyverno logs on failure
+        if: failure()
+        run: |
+          kubectl logs -n kyverno -l app.kubernetes.io/component=admission-controller --tail=200 || true
+          kubectl logs -n kyverno -l app.kubernetes.io/component=background-controller --tail=200 || true
+          kubectl get mutatingwebhookconfigurations -o yaml || true

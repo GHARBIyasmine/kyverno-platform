@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: good-namespace
+  labels:
+    team: platform
+    environment: staging
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bad-namespace-no-labels
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bad-namespace-empty-label
+  labels:
+    team: ""
+    environment: staging
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bad-namespace-missing-environment
+  labels:
+    team: platform

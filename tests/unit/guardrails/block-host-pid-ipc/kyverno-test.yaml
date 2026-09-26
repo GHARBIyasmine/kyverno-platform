@@ -1,0 +1,23 @@
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: block-host-pid-ipc-test
+policies:
+  - policy.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: block-host-pid-ipc
+    isValidatingPolicy: true
+    kind: Pod
+    resources:
+      - good-pod
+    result: pass
+  - policy: block-host-pid-ipc
+    isValidatingPolicy: true
+    kind: Pod
+    resources:
+      - bad-pod-hostpid
+      - bad-pod-hostipc
+      - bad-pod-both
+    result: fail

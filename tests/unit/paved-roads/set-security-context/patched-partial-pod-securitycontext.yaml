@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: partial-pod-securitycontext
+spec:
+  securityContext:
+    runAsNonRoot: false
+    runAsUser: 5000
+    runAsGroup: 3000
+    fsGroup: 2000
+  containers:
+    - name: app
+      image: ghcr.io/gharbiyasmine/app:1.0
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        runAsUser: 1000

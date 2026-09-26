@@ -27,7 +27,7 @@ spec:
                             : 3000,
                 fsGroup: has(object.spec.securityContext) && has(object.spec.securityContext.fsGroup)
                          ? object.spec.securityContext.fsGroup
-                         : 2000            
+                         : 2000
               },
               containers: object.spec.containers.map(c,
                 Object.spec.containers{

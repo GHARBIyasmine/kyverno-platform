@@ -1,0 +1,58 @@
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: set-security-context-test
+policies:
+  - policy.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: set-security-context
+    isMutatingPolicy: true
+    kind: Pod
+    resources:
+      - no-securitycontext-pod
+    patchedResources: patched-no-securitycontext-pod.yaml
+    result: pass
+  - policy: set-security-context
+    isMutatingPolicy: true
+    kind: Pod
+    resources:
+      - partial-pod-securitycontext
+    patchedResources: patched-partial-pod-securitycontext.yaml
+    result: pass
+  - policy: set-security-context
+    isMutatingPolicy: true
+    kind: Pod
+    resources:
+      - full-pod-securitycontext
+    patchedResources: patched-full-pod-securitycontext.yaml
+    result: pass
+  - policy: set-security-context
+    isMutatingPolicy: true
+    kind: Pod
+    resources:
+      - container-already-has-securitycontext
+    patchedResources: patched-container-already-has-securitycontext.yaml
+    result: pass
+  - policy: set-security-context
+    isMutatingPolicy: true
+    kind: Pod
+    resources:
+      - multi-container-pod
+    patchedResources: patched-multi-container-pod.yaml
+    result: pass
+  - policy: set-security-context
+    isMutatingPolicy: true
+    kind: Pod
+    resources:
+      - pod-runasuser-zero
+    patchedResources: patched-pod-runasuser-zero.yaml
+    result: pass
+  - policy: set-security-context
+    isMutatingPolicy: true
+    kind: Pod
+    resources:
+      - container-runasuser-zero
+    patchedResources: patched-container-runasuser-zero.yaml
+    result: pass

@@ -1,0 +1,30 @@
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: default-resource-limits-test
+policies:
+  - policy.yaml
+resources:
+  - resources.yaml
+results:
+  - policy: default-resource-limits
+    isMutatingPolicy: true
+    kind: Pod
+    resources:
+      - no-resources-pod
+    patchedResources: patched-no-resources-pod.yaml
+    result: pass
+  - policy: default-resource-limits
+    isMutatingPolicy: true
+    kind: Pod
+    resources:
+      - already-has-resources-pod
+    patchedResources: patched-already-has-resources-pod.yaml
+    result: pass
+  - policy: default-resource-limits
+    isMutatingPolicy: true
+    kind: Pod
+    resources:
+      - partial-resources-pod
+    patchedResources: patched-partial-resources-pod.yaml
+    result: pass
