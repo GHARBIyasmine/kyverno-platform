@@ -6,7 +6,7 @@ metadata:
   annotations:
     # Required to prevent sync deadlocks with Kyverno's webhooks and CRDs
     argocd.argoproj.io/compare-options: ServerSideDiff=true,IncludeMutationWebhook=true
-    argocd.argoproj.io/sync-wave: "4"
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: platform
   source:
