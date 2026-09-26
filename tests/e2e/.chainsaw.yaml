@@ -17,3 +17,5 @@ spec:
       labels:
         team: platform
         environment: e2e-test
+  timeouts:
+    delete: 60s
