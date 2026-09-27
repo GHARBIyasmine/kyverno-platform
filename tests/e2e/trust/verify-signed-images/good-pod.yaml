@@ -5,4 +5,4 @@ metadata:
 spec:
   containers:
     - name: app
-      image: ghcr.io/gharbiyasmine/kyverno-demo:1.0.0
+      image: kyverno-demo:1.0.0
