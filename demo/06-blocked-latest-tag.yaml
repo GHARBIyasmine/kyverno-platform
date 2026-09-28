@@ -1,0 +1,27 @@
+# No mutation rewrites tags -- disallow-latest-tag should reject this
+# outright.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: latest-tag-app
+  namespace: demo-orders
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: latest-tag-app
+  template:
+    metadata:
+      labels:
+        app: latest-tag-app
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/gharbiyasmine/kyverno-demo:latest
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi

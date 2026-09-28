@@ -1,0 +1,21 @@
+# No resources block at all -- default-resource-limits should backfill
+# requests/limits before require-resource-limits ever sees it, so this
+# should be admitted, not rejected.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: missing-resources-app
+  namespace: demo-orders
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: missing-resources-app
+  template:
+    metadata:
+      labels:
+        app: missing-resources-app
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/gharbiyasmine/kyverno-demo:1.0.0

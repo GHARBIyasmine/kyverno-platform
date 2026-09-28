@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hostnetwork-app
+  namespace: demo-orders
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hostnetwork-app
+  template:
+    metadata:
+      labels:
+        app: hostnetwork-app
+    spec:
+      hostNetwork: true
+      containers:
+        - name: app
+          image: ghcr.io/gharbiyasmine/kyverno-demo:1.0.0
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
