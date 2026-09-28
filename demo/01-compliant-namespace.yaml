@@ -1,0 +1,9 @@
+# Triggers all four scaffolding/ generate policies since it has the
+# required team/environment labels and isn't on the infra exclusion list.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo-orders
+  labels:
+    team: orders
+    environment: demo

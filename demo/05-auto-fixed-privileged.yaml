@@ -1,0 +1,32 @@
+# Explicitly requests privilege escalation -- set-security-context
+# unconditionally overwrites container securityContext, so this should be
+# silently corrected to allowPrivilegeEscalation: false rather than
+# rejected.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: privileged-app
+  namespace: demo-orders
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: privileged-app
+  template:
+    metadata:
+      labels:
+        app: privileged-app
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/gharbiyasmine/kyverno-demo:1.0.0
+          runAsUser: 0
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: true

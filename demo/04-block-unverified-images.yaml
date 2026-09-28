@@ -1,0 +1,29 @@
+# Image isn't from the approved registry -- rewrite-image-registry should
+# prefix it to ghcr.io/gharbiyasmine/nginx:1.25 *before*
+# restrict-image-registries validates it, so this should pass despite
+# starting out non-compliant.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wrong-registry-app
+  namespace: demo-orders
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wrong-registry-app
+  template:
+    metadata:
+      labels:
+        app: wrong-registry-app
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/gharbiyasmine/kyverno-demo-unsigned:1.0.0
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi

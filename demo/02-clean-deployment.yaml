@@ -1,0 +1,33 @@
+# Fully compliant already -- passes every guardrail as-is. The paved-roads
+# mutations still fire (e.g. default runAsUser gets applied since none is
+# set here), but nothing they touch changes pass/fail outcome.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clean-app
+  namespace: demo-orders
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: clean-app
+  template:
+    metadata:
+      labels:
+        app: clean-app
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: app
+          image: ghcr.io/gharbiyasmine/kyverno-demo:1.0.0
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
