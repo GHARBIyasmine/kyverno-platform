@@ -99,7 +99,7 @@ Aside from the tests carried out by the CI workflow, we also have a demo file wi
 
 ## Reproducing it
 
-This project was built and tested on WSL2 + Docker Desktop, which has its own set of networking quirks. A full walkthrough and further explanations of that setup is written up here (Article will be up soon - will be replaced by the link !).
+This project was built and tested on WSL2 + Docker Desktop, which has its own set of networking quirks. A full walkthrough and further explanations of that setup is written up [here](https://medium.com/@gyasmine29/kyverno-beyond-security-guardrails-paved-roads-scaffolding-and-trust-e6fd6a4c6cd9).
 
 ## Future work
 
